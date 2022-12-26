@@ -3,12 +3,12 @@ using MessagePack;
 namespace Hive.Core.Network.Packet;
 
 [MessagePackObject]
-public class KeyboardPacket : IHivePacket
+public class KeyboardButtonDownPacket : IHivePacket
 {
     [Key(0)]
     public uint Key { get; set; }
 
-    public KeyboardPacket(uint key)
+    public KeyboardButtonDownPacket(uint key)
     {
         Key = key;
     }

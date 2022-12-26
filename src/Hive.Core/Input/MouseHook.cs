@@ -7,11 +7,13 @@ public class MouseHook
 {
     public event EventHandler<MouseEventArgs>? ButtonPressed;
     public event EventHandler<MouseEventArgs>? ButtonReleased;
+    public event EventHandler<MouseEventArgs>? Moved;
 
     private const int WM_LBUTTONDOWN = 0x0201;
     private const int WM_RBUTTONDOWN = 0x0204;
     private const int WM_LBUTTONUP = 0x0202;
     private const int WM_RBUTTONUP = 0x0205;
+    private const int WM_MOUSEMOVE = 0x0200;
 
     private readonly IntPtr _id;
     private readonly WindowsHookNative.HookProc _mouseCallback;
@@ -40,6 +42,11 @@ public class MouseHook
         {
             var args = new MouseEventArgs(eventData.pt.X, eventData.pt.Y);
             ButtonReleased?.Invoke(this, args);
+        }
+        else if (message == WM_MOUSEMOVE)
+        {
+            var args = new MouseEventArgs(eventData.pt.X, eventData.pt.Y);
+            Moved?.Invoke(this, args);
         }
 
         return WindowsHookNative.CallNextHookEx(_id, nCode, wParam, lParam);

@@ -1,4 +1,5 @@
 using Hive.App.Command;
+using Hive.Core;
 using Hive.Core.Input;
 using Hive.Core.Network;
 using Hive.Core.Network.Packet;
@@ -15,6 +16,9 @@ public class MainViewModel : ViewModelBase
 
     private readonly KeyboardHook _keyboardHook;
     private readonly MouseHook _mouseHook;
+
+    private readonly MouseContext _mouseContext;
+    private readonly MouseInputRelay _mouseInputRelay;
 
     private string _address;
     public string Address
@@ -50,11 +54,16 @@ public class MainViewModel : ViewModelBase
         _keyboardHook = keyboardHook;
         _mouseHook = mouseHook;
 
-        _keyboardHook.KeyPressed += (sender, args) => { HiveClient?.SendPacket(new KeyboardPacket(args.Key)); };
-        // _keyboardHook.KeyReleased += (sender, args) => { Log = string.Empty; };
+        _keyboardHook.KeyPressed += (sender, args) => { HiveClient?.SendPacket(new KeyboardButtonDownPacket(args.Key)); };
+        _keyboardHook.KeyReleased += (sender, args) => { HiveClient?.SendPacket(new KeyboardButtonUpPacket(args.Key)); };
 
-        _mouseHook.ButtonPressed += (sender, args) => { HiveClient?.SendPacket(new MousePacket(args.X, args.Y)); };
-        // _mouseHook.ButtonReleased += (sender, args) => { Log = string.Empty; };
+        _mouseHook.ButtonPressed += (sender, args) => { HiveClient?.SendPacket(new MouseButtonDownPacket(args.X, args.Y)); };
+        _mouseHook.ButtonReleased += (sender, args) => { HiveClient?.SendPacket(new MouseButtonUpPacket(args.X, args.Y)); };
+
+        _mouseHook.Moved += (sender, args) => { HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y)); };
+
+        _mouseContext = new MouseContext(ScaledResolution.FromActiveScreen(), true);
+        _mouseInputRelay = new MouseInputRelay(_mouseContext);
     }
 
     private async void StartServer(bool status)
@@ -75,13 +84,24 @@ public class MainViewModel : ViewModelBase
     {
         var packet = e.Packet;
 
-        if (packet is MousePacket mousePacket)
+        Log = packet switch
         {
-            Log = $"Mouse Packet Received: X = {mousePacket.X}, Y = {mousePacket.Y}.";
-        }
-        else if (packet is KeyboardPacket keyboardPacket)
+            MouseButtonDownPacket mouseDownPacket => $"Mouse Button Down Packet Received: X = {mouseDownPacket.X}, Y = {mouseDownPacket.Y}.",
+            MouseButtonUpPacket mouseUpPacket => $"Mouse Button Up Packet Received: X = {mouseUpPacket.X}, Y = {mouseUpPacket.Y}.",
+            KeyboardButtonDownPacket keyboardDownPacket => $"Keyboard Button Down Packet Received: Keycode = {keyboardDownPacket.Key}.",
+            KeyboardButtonUpPacket keyboardUpPacket => $"Keyboard Button Up Packet Received: Keycode = {keyboardUpPacket.Key}.",
+            MouseMovePacket mouseMovePacket => $"Mouse Moved Packet Received: X = {mouseMovePacket.X}, Y = {mouseMovePacket.Y}.",
+            _ => throw new System.NotImplementedException()
+        };
+
+        if (packet is MouseMovePacket mp)
         {
-            Log = $"Keyboard Packet Received: Keycode = {keyboardPacket.Key}.";
+            OnMouseMoved(mp);
         }
+    }
+
+    private void OnMouseMoved(MouseMovePacket mouseMovePacket)
+    {
+        _mouseInputRelay.RelayMousePosition(mouseMovePacket.X, mouseMovePacket.Y);
     }
 }

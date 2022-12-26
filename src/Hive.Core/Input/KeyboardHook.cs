@@ -6,7 +6,7 @@ namespace Hive.Core.Input;
 public class KeyboardHook
 {
     public event EventHandler<KeyboardEventArgs>? KeyPressed;
-    public event EventHandler? KeyReleased;
+    public event EventHandler<KeyboardEventArgs>? KeyReleased;
 
     private const int WM_KEYUP = 0x0101;
     private const int WM_KEYDOWN = 0x0100;
