@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Hive.Core.Native;
 
-internal class ResolutionNative
+internal class ScreenNative
 {
     [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]
     public static extern int GetDeviceCaps(IntPtr hDC, int nIndex);
@@ -33,11 +33,8 @@ internal class ResolutionNative
         return ScreenScalingFactor;
     }
 
-    public static Size GetDisplayResolution()
+    public static IReadOnlyCollection<Screen> GetAllScreens()
     {
-        var sf = GetWindowsScreenScalingFactor(false);
-        var screenWidth = Screen.PrimaryScreen.Bounds.Width * sf;
-        var screenHeight = Screen.PrimaryScreen.Bounds.Height * sf;
-        return new Size((int)screenWidth, (int)screenHeight);
+        return Screen.AllScreens;
     }
 }

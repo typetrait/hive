@@ -13,7 +13,11 @@ public class MouseInputRelay
 
     public void RelayMousePosition(int x, int y)
     {
-        var (scaledX, scaledY) = _mouseContext.GetScaledPoint(x, y);
-        MouseNative.SetCursorPos(scaledX, scaledY);
+        var (scaledX, scaledY) = _mouseContext.GetTranslatedPoint(x, y);
+
+        if (_mouseContext.IsInClientArea)
+        {
+            MouseNative.SetCursorPos(scaledX, scaledY);
+        }
     }
 }

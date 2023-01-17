@@ -1,17 +1,19 @@
+using System.Collections.Generic;
+
 namespace Hive.Core;
 
 public class MouseContext
 {
-    public ScaledResolution Resolution { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsInClientArea => true;
 
-    public MouseContext(ScaledResolution resolution, bool isActive)
+    private readonly ClientScreen _screen;
+
+    public MouseContext(ClientScreen screen)
     {
-        Resolution = resolution;
-        IsActive = isActive;
+        _screen = screen;
     }
 
-    public (int x, int y) GetScaledPoint(int x, int y)
+    public (int x, int y) GetTranslatedPoint(int x, int y)
     {
         return (x, y);
     }

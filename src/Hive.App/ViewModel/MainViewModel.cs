@@ -62,7 +62,7 @@ public class MainViewModel : ViewModelBase
 
         _mouseHook.Moved += (sender, args) => { HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y)); };
 
-        _mouseContext = new MouseContext(ScaledResolution.FromActiveScreen(), true);
+        _mouseContext = new MouseContext(ClientScreen.FromPrimary());
         _mouseInputRelay = new MouseInputRelay(_mouseContext);
     }
 
