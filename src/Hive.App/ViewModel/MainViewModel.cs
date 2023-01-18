@@ -3,6 +3,7 @@ using Hive.Core;
 using Hive.Core.Input;
 using Hive.Core.Network;
 using Hive.Core.Network.Packet;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace Hive.App.ViewModel;
@@ -62,7 +63,7 @@ public class MainViewModel : ViewModelBase
 
         _mouseHook.Moved += (sender, args) => { HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y)); };
 
-        _mouseContext = new MouseContext(ClientScreen.FromPrimary());
+        _mouseContext = new MouseContext(_mouseHook);
         _mouseInputRelay = new MouseInputRelay(_mouseContext);
     }
 
@@ -78,6 +79,9 @@ public class MainViewModel : ViewModelBase
     {
         var tcpClient = new System.Net.Sockets.TcpClient(Address, 35776);
         HiveClient ??= new HiveClient(tcpClient);
+
+        // TODO: Only send CreateBoundaryPacket when not running both the server and client locally.
+        // HiveClient?.SendPacket(new CreateBoundaryPacket(Boundary.FromPrimary()));
     }
 
     private void OnPacketReceived(object? sender, PacketEventArgs e)
@@ -98,10 +102,19 @@ public class MainViewModel : ViewModelBase
         {
             OnMouseMoved(mp);
         }
+        else if (packet is CreateBoundaryPacket bp)
+        {
+            OnCreateBoundary(bp);
+        }
     }
 
     private void OnMouseMoved(MouseMovePacket mouseMovePacket)
     {
         _mouseInputRelay.RelayMousePosition(mouseMovePacket.X, mouseMovePacket.Y);
+    }
+
+    private void OnCreateBoundary(CreateBoundaryPacket createBoundaryPacket)
+    {
+        _mouseContext.Boundaries.Add(createBoundaryPacket.Boundary);
     }
 }

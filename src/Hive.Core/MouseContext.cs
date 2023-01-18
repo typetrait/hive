@@ -1,20 +1,43 @@
-using System.Collections.Generic;
+using Hive.Core.Input;
 
 namespace Hive.Core;
 
 public class MouseContext
 {
-    public bool IsInClientArea => true;
+    public IList<Boundary> Boundaries { get; init; }
+    public Boundary ActiveBoundary { get; private set; }
+    public bool IsServerBoundary => _index == 0;
 
-    private readonly ClientScreen _screen;
+    public event EventHandler<Input.MouseEventArgs>? BoundaryChanged;
 
-    public MouseContext(ClientScreen screen)
+    private int _index;
+    private readonly MouseHook _mouseHook;
+
+    public MouseContext(MouseHook mouseHook)
     {
-        _screen = screen;
+        _mouseHook= mouseHook;
+        _mouseHook.Moved += OnMouseMoved;
+
+        Boundaries = new List<Boundary>()
+        {
+            Boundary.FromPrimary()
+        };
+
+        _index = 0;
+        ActiveBoundary = Boundaries[_index];
     }
 
-    public (int x, int y) GetTranslatedPoint(int x, int y)
+    private void OnMouseMoved(object? sender, Input.MouseEventArgs e)
     {
-        return (x, y);
+        if (e.X >= ActiveBoundary.Width)
+        {
+            ActiveBoundary = Boundaries[_index++];
+            BoundaryChanged?.Invoke(this, e);
+        }
+        else if (e.X <= 0)
+        {
+            ActiveBoundary= Boundaries[_index--];
+            BoundaryChanged?.Invoke(this, e);
+        }
     }
 }

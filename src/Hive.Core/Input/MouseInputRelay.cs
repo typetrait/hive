@@ -9,15 +9,19 @@ public class MouseInputRelay
     public MouseInputRelay(MouseContext mouseContext)
     {
         _mouseContext = mouseContext;
+        _mouseContext.BoundaryChanged += OnBoundaryChanged;
     }
 
     public void RelayMousePosition(int x, int y)
     {
-        var (scaledX, scaledY) = _mouseContext.GetTranslatedPoint(x, y);
-
-        if (_mouseContext.IsInClientArea)
+        if (!_mouseContext.IsServerBoundary)
         {
-            MouseNative.SetCursorPos(scaledX, scaledY);
+            // TODO: Translate cursor position or use delta to accommodate different resolutions.
+            MouseNative.SetCursorPos(x, y);
         }
+    }
+
+    private void OnBoundaryChanged(object? sender, MouseEventArgs e)
+    {
     }
 }

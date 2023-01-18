@@ -7,6 +7,7 @@ namespace Hive.Core.Network;
 [MessagePack.Union(2, typeof(MouseButtonUpPacket))]
 [MessagePack.Union(3, typeof(KeyboardButtonDownPacket))]
 [MessagePack.Union(4, typeof(KeyboardButtonUpPacket))]
+[MessagePack.Union(5, typeof(CreateBoundaryPacket))]
 public interface IHivePacket
 {
 }

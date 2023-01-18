@@ -2,12 +2,12 @@ using Hive.Core.Native;
 
 namespace Hive.Core;
 
-public class ClientScreen
+public class Boundary
 {
     public int Width { get; set; }
     public int Height { get; set; }
 
-    public ClientScreen(Screen screen)
+    public Boundary(Screen screen)
     {
         Width = screen.Bounds.Width;
         Height = screen.Bounds.Height;
@@ -21,8 +21,8 @@ public class ClientScreen
         return ((int)screenWidth, (int)screenHeight);
     }
 
-    public static ClientScreen FromPrimary()
+    public static Boundary FromPrimary()
     {
-        return new ClientScreen(Screen.PrimaryScreen);
+        return new Boundary(Screen.PrimaryScreen);
     }
 }
