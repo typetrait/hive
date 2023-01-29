@@ -12,7 +12,6 @@ public class HiveClient
     public HiveClient(TcpClient tcpClient)
     {
         TcpClient = tcpClient;
-
         _options = MessagePackSerializerOptions.Standard.WithResolver(StandardResolver.Instance);
     }
 

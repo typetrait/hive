@@ -1,5 +1,5 @@
 using Hive.App.Command;
-using Hive.Core;
+using Hive.Core.Client;
 using Hive.Core.Input;
 using Hive.Core.Network;
 using Hive.Core.Network.Packet;
@@ -16,9 +16,6 @@ public class MainViewModel : ViewModelBase
 
     private readonly KeyboardHook _keyboardHook;
     private readonly MouseHook _mouseHook;
-
-    private readonly MouseContext _mouseContext;
-    private readonly MouseInputRelay _mouseInputRelay;
 
     private string _address;
     public string Address
@@ -61,9 +58,6 @@ public class MainViewModel : ViewModelBase
         _mouseHook.ButtonReleased += (sender, args) => { HiveClient?.SendPacket(new MouseButtonUpPacket(args.X, args.Y)); };
 
         _mouseHook.Moved += (sender, args) => { HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y)); };
-
-        _mouseContext = new MouseContext(_mouseHook);
-        _mouseInputRelay = new MouseInputRelay(_mouseContext);
     }
 
     private async void StartServer(bool status)
@@ -97,23 +91,24 @@ public class MainViewModel : ViewModelBase
             _ => throw new System.NotImplementedException()
         };
 
-        if (packet is MouseMovePacket mp)
+        try
         {
-            OnMouseMoved(mp);
+            IInputCommand command = InputCommandFactory.CreateCommand(packet);
+            command.Execute();
         }
-        else if (packet is CreateBoundaryPacket bp)
+        catch (System.Exception)
         {
-            OnCreateBoundary(bp);
-        }
-    }
 
-    private void OnMouseMoved(MouseMovePacket mouseMovePacket)
-    {
-        _mouseInputRelay.RelayMousePosition(mouseMovePacket.X, mouseMovePacket.Y);
+            Log = "Not Implemented...";
+        }
+
+        //if (packet is CreateBoundaryPacket bp)
+        //{
+        //    OnCreateBoundary(bp);
+        //}
     }
 
     private void OnCreateBoundary(CreateBoundaryPacket createBoundaryPacket)
     {
-        _mouseContext.Boundaries.Add(createBoundaryPacket.Boundary);
     }
 }
