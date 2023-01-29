@@ -3,7 +3,6 @@ using Hive.Core;
 using Hive.Core.Input;
 using Hive.Core.Network;
 using Hive.Core.Network.Packet;
-using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace Hive.App.ViewModel;
