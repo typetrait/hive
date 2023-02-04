@@ -2,6 +2,10 @@ using Hive.Core.Native;
 
 namespace Hive.Core;
 
+/// <summary>
+/// Represents an area where input commands can be executed.
+/// Effectively 
+/// </summary>
 public class Boundary
 {
     public int Width { get; set; }
@@ -24,5 +28,13 @@ public class Boundary
     public static Boundary FromPrimary()
     {
         return new Boundary(Screen.PrimaryScreen);
+    }
+
+    public static IEnumerable<Boundary> GetAll()
+    {
+        foreach (var screen in Screen.AllScreens)
+        {
+            yield return new Boundary(screen);
+        }
     }
 }

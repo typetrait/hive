@@ -1,4 +1,4 @@
-namespace Hive.Core.Client;
+namespace Hive.Core;
 
 /// <summary>
 /// Represents an input executed by the client.

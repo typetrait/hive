@@ -1,8 +1,11 @@
 using Hive.App.Command;
+using Hive.Core;
 using Hive.Core.Client;
 using Hive.Core.Input;
 using Hive.Core.Network;
 using Hive.Core.Network.Packet;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 
 namespace Hive.App.ViewModel;
@@ -14,6 +17,7 @@ public class MainViewModel : ViewModelBase
     public HiveServer HiveServer { get; init; }
     public HiveClient? HiveClient { get; private set; }
 
+    private readonly Controller _controller;
     private readonly KeyboardHook _keyboardHook;
     private readonly MouseHook _mouseHook;
 
@@ -57,7 +61,17 @@ public class MainViewModel : ViewModelBase
         _mouseHook.ButtonPressed += (sender, args) => { HiveClient?.SendPacket(new MouseButtonDownPacket(args.X, args.Y)); };
         _mouseHook.ButtonReleased += (sender, args) => { HiveClient?.SendPacket(new MouseButtonUpPacket(args.X, args.Y)); };
 
-        _mouseHook.Moved += (sender, args) => { HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y)); };
+        _mouseHook.Moved += (sender, args) =>
+        {
+            (int X, int Y) mousePos = (args.X, args.Y);
+
+            //if (mousePos.X <= 0 || mousePos.Y <= 0 || mousePos.X >= _controller.Boundaries.First().Width || mousePos.Y >= _controller.Boundaries.First().Height)
+            //{
+            //    _controller.Relay();
+            //}
+
+            HiveClient?.SendPacket(new MouseMovePacket(args.X, args.Y));
+        };
     }
 
     private async void StartServer(bool status)
@@ -74,7 +88,7 @@ public class MainViewModel : ViewModelBase
         HiveClient ??= new HiveClient(tcpClient);
 
         // TODO: Only send CreateBoundaryPacket when not running both the server and client locally.
-        // HiveClient?.SendPacket(new CreateBoundaryPacket(Boundary.FromPrimary()));
+        HiveClient?.SendPacket(new CreateBoundariesPacket(Boundary.GetAll().ToList()));
     }
 
     private void OnPacketReceived(object? sender, PacketEventArgs e)
@@ -91,24 +105,14 @@ public class MainViewModel : ViewModelBase
             _ => throw new System.NotImplementedException()
         };
 
-        try
-        {
-            IInputCommand command = InputCommandFactory.CreateCommand(packet);
-            command.Execute();
-        }
-        catch (System.Exception)
-        {
-
-            Log = "Not Implemented...";
-        }
-
-        //if (packet is CreateBoundaryPacket bp)
+        //try
         //{
-        //    OnCreateBoundary(bp);
+        //    var commandContext = new CommandContext(_activeBoundary);
+        //    _dispatcher.Dispatch(packet, commandContext);
         //}
-    }
-
-    private void OnCreateBoundary(CreateBoundaryPacket createBoundaryPacket)
-    {
+        //catch (System.Exception ex)
+        //{
+        //    Log = ex.Message;
+        //}
     }
 }

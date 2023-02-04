@@ -1,9 +1,13 @@
 namespace Hive.Core.Client.Commands;
 
-public class KeyboardInputCommand : IInputCommand
+public class KeyboardInputCommand : NotifiableInputCommand
 {
-    public void Execute()
+    public KeyboardInputCommand(CommandContext commandContext) : base(commandContext)
     {
-        throw new NotImplementedException();
+    }
+
+    public override void Execute()
+    {
+        base.Execute();
     }
 }

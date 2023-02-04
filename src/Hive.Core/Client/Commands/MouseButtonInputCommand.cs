@@ -4,7 +4,7 @@ public class MouseButtonInputCommand : MouseInputCommand
 {
     private readonly Input.ButtonState _buttonState;
 
-    public MouseButtonInputCommand(int x, int y, Input.ButtonState buttonState) : base(x, y)
+    public MouseButtonInputCommand(CommandContext commandContext, int x, int y, Input.ButtonState buttonState) : base(commandContext, x, y)
     {
         _buttonState = buttonState;
     }
@@ -19,5 +19,7 @@ public class MouseButtonInputCommand : MouseInputCommand
             case Input.ButtonState.Down:
                 break;
         }
+
+        base.Execute();
     }
 }
